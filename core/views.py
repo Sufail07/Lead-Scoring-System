@@ -41,7 +41,7 @@ chat = model.start_chat(history=[
     {"role": "user", "parts": [system_instruction]}
 ])
 
-BASE_URL = 'https://lead-scoring-system-4eiv.onrender.com/api/'
+BASE_URL = 'https://lead-scoring-system-4eiv.onrender.com/api'
 
 
 '''
