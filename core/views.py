@@ -195,7 +195,7 @@ Endpoint to fetch the result of scored leads from the database.
 )
 @api_view(['GET'])
 def result(request):
-    evaluated_leads = Lead.objects.exclude(score='').exclude(intent_label='').exclude(reasoning='')
+    evaluated_leads = Lead.objects.exclude(intent_label='').exclude(reasoning='')
     serializer = LeadResultsSerializer(evaluated_leads, many=True)
     return Response(serializer.data, status=status.HTTP_200_OK)
 
