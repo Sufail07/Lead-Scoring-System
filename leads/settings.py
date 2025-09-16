@@ -99,7 +99,7 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 SPECTACULAR_SETTINGS = {
-    'TITLE': 'Leads Tracker API',
+    'TITLE': 'Leads Scoring API',
     'DESCRIPTION': "A Backend service that accepts Product/Offer information and a CSV of leads, then scores each lead’s buying intent (High / Medium / Low) using rule-based logic + AI reasoning",
     'VERSION': '1.0.0',
 }
