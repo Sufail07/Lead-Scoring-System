@@ -18,7 +18,7 @@ SECRET_KEY = 'django-insecure-yjs*)b((bo^28xsw+cra7b5xwv&0e!5&ytv7=&(!(jr@=t4-_-
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['lead-scoring-system-4eiv.onrender.com]
+ALLOWED_HOSTS = ['lead-scoring-system-4eiv.onrender.com']
 
 
 # Application definition
