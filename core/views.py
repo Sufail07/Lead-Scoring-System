@@ -227,17 +227,7 @@ def view_offers(request):
     return Response(serializer.data, status=status.HTTP_200_OK)
 
 
-@extend_schema(
-    summary="View All Offers",
-    description="Retrieves a list of all offers in the system.",
-    responses=OfferSerializer(many=True),
-    tags=['Offers']
-)
-@api_view(['GET'])
-def view_offer(request):
-    all_offers = Offer.objects.all()
-    serializer = OfferSerializer(all_offers, many=True)
-    return Response(serializer.data, status=status.HTTP_200_OK)
+
 
 '''
 Endpoint to export the evaluated leads data as CSV. It sends a request to /result endpoint, builds a CSV file for the returned data, and provides a link for the user to download the CSV file.
@@ -342,7 +332,7 @@ Helper function to see if a lead has complete details. If so, 10 points are rewa
 def get_completeness_score(lead):
     required_fields = ['name', 'role', 'company', 'industry', 'location', 'linkedin_bio']
     for field in required_fields:
-        value = getattr(lead, field, None)
+        value = getattr(lead, field, '')
         if not value:
             return 0
     return 10
