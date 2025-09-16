@@ -115,7 +115,7 @@ This endpoint returns a JSON array of the scored leads.
 
 ### **5. `GET /export`**
 
-This optional endpoint returns a link to download CSV file of the scored leads.
+This endpoint returns a link to download CSV file of the scored leads.
 
 * **Endpoint:** `/api/export/`
 * **Method:** `GET`
