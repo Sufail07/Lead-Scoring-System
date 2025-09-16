@@ -104,10 +104,13 @@ Endpoint to upload leads for a specific offer. It accepts an integer -> offer_id
 )
 @api_view(['POST'])
 def upload_leads(request, offer_id):
-    offer = Offer.objects.get(id=offer_id)
+    offer = get_object_or_404(Offer, id=offer_id)
     if not offer:
         return Response({'error': 'Provide a valid offer_id'}, status=status.HTTP_404_NOT_FOUND)
     file = request.FILES['file']
+
+    if not file:
+        return Response({'error': 'No file uploaded'}, status=status.HTTP_400_BAD_REQUEST)
     
     if not file.name.endswith('.csv'):
         return Response({'error': 'Only CSV files are  supported'}, status=status.HTTP_400_BAD_REQUEST)
@@ -116,15 +119,18 @@ def upload_leads(request, offer_id):
     io_string = StringIO(decoded_file)
     reader = csv.DictReader(io_string)
 
-    # In case any line of lead in the csv fails to comply with the required fields specification that specific lead fails to be uploaded to db and a count is kept.
     created_leads, failed_leads = [], []
     for row in reader:
-        serializer = LeadSerializer(data={**row, 'offer': offer.id})
+        row_data = {**row, "offer": offer.id}
+
+        serializer = LeadSerializer(data=row_data)
         if serializer.is_valid():
             serializer.save()
             created_leads.append(serializer.data)
         else:
-            failed_leads.append({'row': row, 'errors': serializer.errors})
+            # if only "name" is missing, fail; otherwise model handles defaults
+            failed_leads.append({"row": row, "errors": serializer.errors})
+
     return Response({
         'message': f'{len(created_leads)} leads uploaded successfully to offer: {offer_id}',
         'failed': f'Failed to upload {len(failed_leads)} leads',
