@@ -44,6 +44,10 @@ chat = model.start_chat(history=[
 BASE_URL = 'http://127.0.0.1:8000/api'
 
 
+'''
+Endpoint to create Offers. @extend_schema is used for drf-spectacular documentation, as it is not supported for function based views off the go.
+'''
+
 @extend_schema(
     summary="Create a New Offer",
     description="Creates a new offer with specified details.",
@@ -68,6 +72,10 @@ class UploadLeadsSuccessResponseSerializer(serializers.Serializer):
     created_leads = LeadSerializer(many=True)
     failed_leads = serializers.ListField(child=serializers.DictField())
 
+
+'''
+Endpoint to upload leads for a specific offer. It accepts an integer -> offer_id, through which it recognizes the offer to which the leads are uploaded to.
+'''
 
 @extend_schema(
     summary="Upload Leads via CSV",
@@ -108,6 +116,7 @@ def upload_leads(request, offer_id):
     io_string = StringIO(decoded_file)
     reader = csv.DictReader(io_string)
 
+    # In case any line of lead in the csv fails to comply with the required fields specification that specific lead fails to be uploaded to db and a count is kept.
     created_leads, failed_leads = [], []
     for row in reader:
         serializer = LeadSerializer(data={**row, 'offer': offer.id})
@@ -142,18 +151,21 @@ def upload_leads(request, offer_id):
 def get_leads_score(request, offer_id):
     offer = get_object_or_404(Offer, id=offer_id)
     try:
+        # In case all the leads are scored for the given offer, the function stops.
         leads_to_score = offer.leads.filter(score__isnull=True, intent_label__isnull=True, reasoning__isnull=True)
         if not leads_to_score.exists():
             return Response({'message': 'No leads left to score on this offer'}, status=status.HTTP_400_BAD_REQUEST)
         
         for lead in leads_to_score:
-                
+            
+            # for each lead we find the rule layer point out of 50 and the AI layer point out of 50. The AI layer also returns the AI verdict on the Intent and the reasoning for the verdict. 
             rule_layer_points = get_rule_points(lead)
-            ai_layer_response = get_ai_points(lead)
+            ai_layer_response = get_ai_response(lead)
             
             if 'error' in ai_layer_response:
                 return Response(ai_layer_response, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
             
+            # The calculated score out of 100, is saved to the corresponding object, along with the intent and reasoning.
             final_score = rule_layer_points + ai_layer_response['AI_score']
             lead.score = final_score
             lead.intent_label = ai_layer_response['Intent']
@@ -166,6 +178,9 @@ def get_leads_score(request, offer_id):
         return Response({'error': f'An unexpected error occurred: {str(e)}'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
+'''
+Endpoint to fetch the result of scored leads from the database.
+'''
 @extend_schema(
     summary="View Scored Leads",
     description="Retrieves a list of all leads that have been successfully scored.",
@@ -218,7 +233,9 @@ def view_offer(request):
     serializer = OfferSerializer(all_offers, many=True)
     return Response(serializer.data, status=status.HTTP_200_OK)
 
-
+'''
+Endpoint to export the evaluated leads data as CSV. It sends a request to /result endpoint, builds a CSV file for the returned data, and provides a link for the user to download the CSV file.
+'''
 @extend_schema(
     summary="Export scored results as CSV",
     description="Fetches the scored results and downloads as CSV file",
@@ -236,6 +253,7 @@ def export_result(request):
     except requests.exceptions.RequestException as e:
         return Response({'message': f'Error fetching data: {e}'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
     
+    # In case there exists no data in the /result endpoint.
     if not leads_data:
         return Response({'message': 'No leads data available for download'}, status=status.HTTP_404_NOT_FOUND)
     
@@ -250,7 +268,9 @@ def export_result(request):
     return response
     
 
-
+'''
+Helper function to calculate the rule points for a specific lead.
+'''
 def get_rule_points(lead):
     offer = lead.offer
     total_score = 0
@@ -259,6 +279,9 @@ def get_rule_points(lead):
     total_score += get_completeness_score(lead)
     return min(total_score, 50)
 
+'''
+There are 2 scenarios where the lead can be given points for the role score. If the lead is a decision_maker or if the lead is an influencer. Points rewarded are 20 and 10 respectively.  
+'''
 def get_role_score(role):
     if not role:
         return 0
@@ -275,6 +298,9 @@ def get_role_score(role):
     
     return 0
 
+'''
+Checking if the industry of the lead matches with the use cases of offer.
+'''
 def get_industry_score(industry, use_cases):
     if not industry or use_cases:
         return 0
@@ -294,13 +320,19 @@ def get_industry_score(industry, use_cases):
             return 10
     
     return 0
-        
+
+'''
+Similarity search of leads industry with the offers use cases is done by checking if the leads industry has any overlapping keyword with the use case of offer.
+'''
 def has_keyword_overlap(lead_industry, use_case):
     # Checking if the industry string of the lead has any overlapping word with the offer use cases to find similarity.
     industry_words = set(lead_industry.split())
     use_case_words = set(use_case.split())
     return bool(industry_words.intersection(use_case_words))
 
+'''
+Helper function to see if a lead has complete details. If so, 10 points are rewarded, else 0.
+'''
 def get_completeness_score(lead):
     required_fields = ['name', 'role', 'company', 'industry', 'location', 'linkedin_bio']
     for field in required_fields:
@@ -309,7 +341,10 @@ def get_completeness_score(lead):
             return 0
     return 10
 
-def get_ai_points(lead):
+'''
+Function to get the AI response. The AI is fed with offer details and each lead details. Output is formatted as: Intent: [intent] Reasoning:[reason]. And the AI score is also calculated as well, as High, Medium, or Low. The output scoring is mapped to 50, 30 and 10 respectively.
+'''
+def get_ai_response(lead):
     offer = lead.offer
     offer_details = {
         'Offer name': offer.name,
