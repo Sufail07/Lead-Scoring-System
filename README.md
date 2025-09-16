@@ -34,7 +34,7 @@ Follow these steps to set up and run the project locally.
 
 1.  **Clone the Repository:**
     ```bash
-    git clone [https://github.com/Sufail07/Lead-Scoring-System.git]
+    git clone https://github.com/Sufail07/Lead-Scoring-System.git
     cd Lead-Scoring-System
     ```
 2.  **Create and Activate a Virtual Environment:**
