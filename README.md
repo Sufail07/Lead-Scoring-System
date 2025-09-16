@@ -1,14 +1,13 @@
 # Lead Scoring System
 
 ## 🚀 Project Overview
-
-This project is a backend service designed to qualify sales leads by scoring them based on product/offer information and prospect data. The scoring pipeline uses a hybrid approach combining a rule-based logic with AI reasoning to determine each lead's buying intent.
+This project is a backend service designed to qualify leads by scoring them based on product/offer information and prospect data. The scoring pipeline uses a hybrid approach combining a rule-based logic with AI reasoning to determine each lead's buying intent.
 
 ---
 
 ## 🎯 Objective
 
-The primary goal of this service is to accept product offer details via a JSON payload and lead data through a CSV file. It then processes and scores each lead, assigning a final score (0-100) and an intent label (High, Medium, or Low).
+The primary goal of this service is to accept product offer details via a JSON payload and lead data through a CSV file. It then processes and scores each lead, assigning a final score (0-100) and an intent label (High, Medium, or Low) along with reasoning.
 
 ---
 
