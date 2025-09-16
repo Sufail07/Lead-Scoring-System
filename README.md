@@ -136,3 +136,14 @@ The lead scoring system employs a two-layer approach for a comprehensive evaluat
 **Final Score = Rule Layer Score + AI Layer Score**.
 
 ---
+
+## 📖 API Documentation
+
+The API documentation is generated and served using [drf-spectacular](https://drf-spectacular.readthedocs.io/):
+
+- **SpectacularAPIView**: Provides the OpenAPI schema for the API.
+- **SpectacularSwaggerView**: Serves an interactive Swagger UI for exploring and testing the API endpoints.
+
+You can view and interact with the API documentation directly via the Swagger UI endpoint (`/api/schema/swagger-ui/`).
+
+---
