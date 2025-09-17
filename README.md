@@ -90,11 +90,11 @@ This endpoint accepts a JSON payload with product details to be used for scoring
     }
     ```
 
-### **2. `POST /leads/upload`**
+### **2. `POST /leads/upload/<int:offer_id>`**
 
-This endpoint accepts a CSV file of leads to be uploaded to the database.
+This endpoint accepts a CSV file of leads, associated with an offer, to be uploaded to the database.
 
-* **Endpoint:** `/api/leads/upload/`
+* **Endpoint:** `/api/leads/upload/<int:offer_id>`
 * **Method:** `POST`
 * **Request Body (Multipart Form Data):**
     `file`: A CSV file with the required lead data columns.
