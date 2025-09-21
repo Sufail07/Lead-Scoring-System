@@ -98,7 +98,7 @@ This endpoint accepts a CSV file of leads, associated with an offer, to be uploa
 * **Method:** `POST`
 * **Request Body (Multipart Form Data):**
     `file`: A CSV file with the required lead data columns.
-  **Required CSV Fields:**
+* **Required CSV Fields:**
 ```csv
 role,company,industry,location,linkedin_bio
 ```
